@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { List, Divider } from "react-native-paper";
 import { router, useRouter } from "expo-router";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Toast from "@/components/Toast";
 

@@ -1,10 +1,11 @@
 import { Stack } from "expo-router";
 
-export default function BookingLayout() {
+export default function DocumentLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
+        presentation: "modal",
       }}
     >
       <Stack.Screen name="index" />

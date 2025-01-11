@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -10,13 +10,10 @@ import { useRouter } from "expo-router";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { useAuth } from "@/contexts/AuthContext";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Menu } from "react-native-paper";
 
 const Home = () => {
-  const { signOut, userProfile } = useAuth();
-  const [menuVisible, setMenuVisible] = useState(false);
+  const { userProfile } = useAuth();
   const router = useRouter();
-
   useEffect(() => {
     console.log("[Home] Screen mounted");
     return () => {
@@ -34,7 +31,7 @@ const Home = () => {
 
   if (!userProfile) {
     return (
-      <ScreenWrapper bg="white">
+      <ScreenWrapper bg="white" hideHeader>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#00C26F" />
         </View>
@@ -46,6 +43,8 @@ const Home = () => {
     console.log("[Home] Navigating to:", route);
     if (route === "bookings") {
       router.push({ pathname: "/(main)/bookings" } as any);
+    } else if (route === "documents") {
+      router.push({ pathname: "/(main)/documents" } as any);
     } else {
       alert("Coming Soon!");
     }
@@ -53,7 +52,7 @@ const Home = () => {
 
   console.log("[Home] Rendering main content");
   return (
-    <ScreenWrapper bg="white">
+    <ScreenWrapper bg="#d9cec1" hideHeader>
       {/* Header with Avatar Menu */}
       <View style={styles.header}>
         <Text style={styles.welcomeText}>Features</Text>
@@ -67,11 +66,15 @@ const Home = () => {
           style={styles.optionCard}
           onPress={() => handleNavigation("bookings")}
         >
-          <MaterialIcons name="directions-bus" size={32} color="#00C26F" />
-          <Text style={styles.optionTitle}>Booking Tracker</Text>
-          <Text style={styles.optionDescription}>
-            Track and manage your transport bookings
-          </Text>
+          <MaterialIcons name="directions-bus" size={40} color="#00C26F" />
+          <View>
+            <Text style={styles.optionTitle} numberOfLines={2}>
+              Booking Tracker
+            </Text>
+            <Text style={styles.optionDescription} numberOfLines={3}>
+              Track and manage your transport bookings
+            </Text>
+          </View>
         </Pressable>
 
         {/* Document Storage */}
@@ -79,9 +82,15 @@ const Home = () => {
           style={styles.optionCard}
           onPress={() => handleNavigation("documents")}
         >
-          <MaterialIcons name="folder" size={32} color="#00C26F" />
-          <Text style={styles.optionTitle}>Document Storage</Text>
-          <Text style={styles.optionDescription}>Coming Soon!</Text>
+          <MaterialIcons name="folder" size={40} color="#00C26F" />
+          <View>
+            <Text style={styles.optionTitle} numberOfLines={2}>
+              Document Storage
+            </Text>
+            <Text style={styles.optionDescription} numberOfLines={3}>
+              Store and manage your documents
+            </Text>
+          </View>
         </Pressable>
       </View>
     </ScreenWrapper>
@@ -100,6 +109,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "white",
+    marginTop: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5E5",
   },
   welcomeText: {
     fontSize: 18,
@@ -120,9 +132,13 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   optionCard: {
+    minHeight: 100,
+    flexDirection: "row",
+    gap: 16,
+    padding: 20,
+    alignItems: "center",
     backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
+    borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -137,11 +153,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1D1D1D",
     marginTop: 8,
+    flexShrink: 1,
   },
   optionDescription: {
     fontSize: 14,
     color: "#7C7C7C",
     marginTop: 4,
+    flexShrink: 1,
   },
 });
 

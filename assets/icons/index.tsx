@@ -22,7 +22,7 @@ import ThreeDotsCircle from "./ThreeDotsCircle";
 import ThreeDotsHorizontal from "./ThreeDotsHorizontal";
 import User from "./User";
 import Video from "./Video";
-import { theme } from "@/constants/theme";
+import { theme } from "@/styles/theme";
 
 interface IconProps extends SvgProps {
   name: string;

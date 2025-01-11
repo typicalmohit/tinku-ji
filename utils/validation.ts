@@ -8,5 +8,7 @@ export const validatePassword = (password: string): boolean => {
 };
 
 export const validateName = (name: string): boolean => {
-  return name.trim().length >= 2;
+  // Only check for minimum length after trimming extra spaces
+  const trimmedName = name.trim();
+  return trimmedName.length >= 2;
 };

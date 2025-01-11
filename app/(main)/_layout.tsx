@@ -17,27 +17,17 @@ export default function MainLayout() {
   }
 
   if (!session) {
-    return <Redirect href="/login" />;
+    return <Redirect href="/(auth)/login" />;
   }
 
   return (
     <View style={{ flex: 1 }}>
       <Header />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="home" />
-        <Stack.Screen name="profile" />
-        <Stack.Screen name="settings" />
-        <Stack.Screen
-          name="bookings"
-          options={{
-            headerShown: false,
-          }}
-        />
+        <Stack.Screen name="(home)" />
+        <Stack.Screen name="bookings" />
+        <Stack.Screen name="documents" />
       </Stack>
     </View>
   );

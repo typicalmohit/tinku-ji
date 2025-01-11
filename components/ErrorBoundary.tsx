@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { theme } from "@/constants/theme";
+import { theme } from "@/styles/theme";
 
 interface Props {
   children: React.ReactNode;

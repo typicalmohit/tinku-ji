@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
-import { hp, wp } from "@/helpers/common";
-import { theme } from "@/constants/theme";
+import { Text, StyleSheet, Animated } from "react-native";
+import { hp, wp } from "@/utils/common";
+import { theme } from "@/styles/theme";
 
 interface ToastProps {
   position?: "top" | "bottom";

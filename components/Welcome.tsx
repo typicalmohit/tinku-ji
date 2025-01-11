@@ -12,8 +12,6 @@ import {
 } from "react-native";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
-import { theme } from "@/constants/theme";
 import { authStyles as styles } from "@/styles/auth";
 
 const Welcome: React.FC = () => {

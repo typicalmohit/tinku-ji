@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-export default function BookingLayout() {
+export default function HomeLayout() {
   return (
     <Stack
       screenOptions={{
@@ -8,7 +8,8 @@ export default function BookingLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="edit" />
+      <Stack.Screen name="profile" />
+      <Stack.Screen name="settings" />
     </Stack>
   );
 }

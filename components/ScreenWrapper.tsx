@@ -31,7 +31,7 @@ const ScreenWrapper = ({
         {
           backgroundColor: bg,
           flex: 1,
-          paddingTop,
+          paddingTop: hideHeader ? 0 : paddingTop,
         },
         style,
       ]}

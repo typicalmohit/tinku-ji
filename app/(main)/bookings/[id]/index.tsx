@@ -1,61 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
-import { dbOperations } from "@/lib/database";
-import { useAuth } from "@/contexts/AuthContext";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { theme } from "@/styles/theme";
 import Toast from "@/components/Toast";
 import ScreenWrapper from "@/components/ScreenWrapper";
-import { theme } from "@/constants/theme";
-import ViewBooking from "./view";
-
-interface BookingData {
-  id: string;
-  user_id: string;
-  from_location: string;
-  to_location: string;
-  departure_date: string;
-  departure_time: string;
-  arrival_date: string;
-  arrival_time: string;
-  customer_name: string;
-  customer_contact: string;
-  driver_name: string | null;
-  driver_contact: string | null;
-  owner_name: string | null;
-  owner_contact: string | null;
-  created_at: string;
-  money: number;
-  advance: number;
-  booking_status: string;
-  payment_amount: number;
-  payment_status: string;
-  oil_status: string;
-  return_type: string;
-  extras: string | null;
-}
+import { useAuth } from "@/contexts/AuthContext";
+import { dbOperations } from "@/lib/database";
+import BookingForm from "@/components/BookingForm";
+import { cancelBookingNotifications } from "@/utils/notifications";
+import CustomAlert from "@/components/CustomAlert";
 
 export default function BookingDetails() {
-  const { id } = useLocalSearchParams();
   const router = useRouter();
   const { session } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [booking, setBooking] = useState<BookingData | null>(null);
+  const [booking, setBooking] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (!id) {
-        Toast.show({
-          type: "error",
-          message: "Invalid booking ID",
-        });
-        router.back();
-        return;
-      }
-      fetchBookingDetails();
-    }, [id])
-  );
+  // Get booking ID from route params
+  const { id } = useLocalSearchParams();
 
-  const fetchBookingDetails = async () => {
+  // Fetch booking data when component mounts
+  useEffect(() => {
+    fetchBooking();
+  }, [id]);
+
+  const fetchBooking = async () => {
     try {
       if (!id || !session?.user?.id) return;
 
@@ -71,11 +41,9 @@ export default function BookingDetails() {
       console.error("Error fetching booking:", error);
       Toast.show({
         type: "error",
-        message: "Failed to load booking details",
+        message: "Failed to fetch booking details",
       });
       router.back();
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -83,7 +51,37 @@ export default function BookingDetails() {
     router.push(`/bookings/${id}/edit`);
   };
 
-  if (loading) {
+  const handleDelete = () => {
+    setShowDeleteAlert(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      if (!id || !session?.user?.id) return;
+      setDeleteLoading(true);
+
+      await dbOperations.deleteBooking(id.toString());
+      await cancelBookingNotifications(id.toString());
+
+      Toast.show({
+        type: "success",
+        message: "Booking deleted successfully",
+      });
+
+      router.back();
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      Toast.show({
+        type: "error",
+        message: "Failed to delete booking",
+      });
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteAlert(false);
+    }
+  };
+
+  if (!booking) {
     return (
       <ScreenWrapper bg="white" hideHeader>
         <View
@@ -95,19 +93,23 @@ export default function BookingDetails() {
     );
   }
 
-  if (!booking) {
-    return null;
-  }
-
   return (
     <ScreenWrapper bg="white" hideHeader>
-      <View style={{ flex: 1 }}>
-        <ViewBooking
-          booking={booking}
-          onEdit={handleEdit}
-          onBack={() => router.back()}
-        />
-      </View>
+      <BookingForm
+        booking={booking}
+        mode="view"
+        onBack={() => router.back()}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        deleteLoading={deleteLoading}
+      />
+      <CustomAlert
+        visible={showDeleteAlert}
+        title="Delete Booking"
+        message="Are you sure you want to delete this booking?"
+        onCancel={() => setShowDeleteAlert(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </ScreenWrapper>
   );
 }

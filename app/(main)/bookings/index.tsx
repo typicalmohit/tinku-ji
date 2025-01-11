@@ -4,7 +4,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/AuthContext";
 import ScreenWrapper from "@/components/ScreenWrapper";
-import { theme } from "@/constants/theme";
+import { theme } from "@/styles/theme";
 import Toast from "@/components/Toast";
 import { styles } from "@/styles/bookings";
 import { Dropdown } from "react-native-element-dropdown";
@@ -67,6 +67,7 @@ const formatDateTime = (dateStr: string, timeStr: string) => {
 
 const BookingCard = ({ booking }: { booking: Booking }) => {
   const router = useRouter();
+  const [expanded, setExpanded] = useState(false);
   const departure = formatDateTime(
     booking.departure_date,
     booking.departure_time
@@ -74,77 +75,92 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
 
   return (
     <Pressable
-      style={styles.bookingCard}
+      style={styles.cardContent}
       onPress={() => router.push(`/bookings/${booking.id}`)}
     >
-      <View style={styles.cardHeader}>
-        <Text style={styles.dateText}>{departure.date}</Text>
-        <View
-          style={[
-            styles.statusBadge,
-            {
-              backgroundColor: getStatusColor(
-                booking.booking_status,
-                "booking"
-              ),
-            },
-          ]}
-        >
-          <Text style={styles.statusText}>
-            {booking.booking_status.toUpperCase()}
+      <View style={styles.bookingCard}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.dateText}>{departure.date}</Text>
+          <View style={styles.headerRight}>
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor: getStatusColor(
+                    booking.booking_status,
+                    "booking"
+                  ),
+                },
+              ]}
+            >
+              <Text style={styles.statusText}>
+                {booking.booking_status.toUpperCase()}
+              </Text>
+            </View>
+            <Pressable
+              style={styles.expandButton}
+              onPress={() => setExpanded(!expanded)}
+            >
+              <MaterialIcons
+                name={expanded ? "keyboard-arrow-up" : "keyboard-arrow-down"}
+                size={24}
+                color={theme.colors.textLight}
+              />
+            </Pressable>
+          </View>
+        </View>
+        <View style={styles.routeContainer}>
+          <Text style={styles.locationText}>
+            {booking.from_location} → {booking.to_location}
           </Text>
         </View>
-      </View>
 
-      <View style={styles.routeContainer}>
-        <Text style={styles.locationText}>
-          {booking.from_location} → {booking.to_location}
-        </Text>
-        <Text style={styles.returnTypeText}>
-          {booking.return_type || "One-way"}
-        </Text>
-      </View>
-
-      <View style={styles.customerInfo}>
-        <Text style={styles.nameText}>{booking.customer_name}</Text>
-        <Text style={styles.phoneText}>{booking.customer_contact}</Text>
-      </View>
-
-      <View style={styles.paymentInfo}>
-        <Text style={styles.moneyText}>Total: ₹{booking.money}</Text>
-        <View
-          style={[
-            styles.statusBadge,
-            {
-              backgroundColor: getStatusColor(
-                booking.payment_status,
-                "payment"
-              ),
-            },
-          ]}
-        >
-          <Text style={styles.statusText}>
-            {`PAYMENT ${booking.payment_status.toUpperCase()}`}
-          </Text>
+        <View style={styles.customerInfo}>
+          <Text style={styles.nameText}>{booking.customer_name}</Text>
+          <Text style={styles.phoneText}>{booking.customer_contact}</Text>
         </View>
-      </View>
 
-      <View style={styles.driverInfo}>
-        <Text style={styles.driverText}>
-          Driver: {booking.driver_name || "Not set"}
-        </Text>
-        <View
-          style={[
-            styles.statusBadge,
-            {
-              backgroundColor: getStatusColor(booking.oil_status, "oil"),
-            },
-          ]}
-        >
-          <Text style={styles.statusText}>
-            {`OIL ${booking.oil_status.toUpperCase()}`}
-          </Text>
-        </View>
+        {expanded && (
+          <View style={styles.expandedContent}>
+            <View style={styles.divider} />
+            <View style={styles.paymentInfo}>
+              <Text style={styles.moneyText}>Total: ₹{booking.money}</Text>
+              <View
+                style={[
+                  styles.statusBadge,
+                  {
+                    backgroundColor: getStatusColor(
+                      booking.payment_status,
+                      "payment"
+                    ),
+                  },
+                ]}
+              >
+                <Text style={styles.statusText}>
+                  {`PAYMENT ${booking.payment_status.toUpperCase()}`}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.driverInfo}>
+              <Text style={styles.driverText}>
+                Driver: {booking.driver_name || "Not set"}
+              </Text>
+              <View
+                style={[
+                  styles.statusBadge,
+                  {
+                    backgroundColor: getStatusColor(booking.oil_status, "oil"),
+                  },
+                ]}
+              >
+                <Text style={styles.statusText}>
+                  {`OIL ${booking.oil_status.toUpperCase()}`}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -192,6 +208,13 @@ export default function BookingsScreen() {
       );
     });
 
+    // Sort bookings by departure date and time
+    filteredBookings.sort((a, b) => {
+      const dateA = new Date(`${a.departure_date}T${a.departure_time}`);
+      const dateB = new Date(`${b.departure_date}T${b.departure_time}`);
+      return dateA.getTime() - dateB.getTime();
+    });
+
     const grouped = filteredBookings.reduce((acc, booking) => {
       const month = format(new Date(booking.departure_date), "MMMM yyyy");
       if (!acc[month]) {
@@ -210,24 +233,13 @@ export default function BookingsScreen() {
   return (
     <ScreenWrapper bg="#d9cec1" hideHeader>
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Pressable
-            style={styles.backButton}
-            onPress={() => router.push("/home")}
-          >
-            <MaterialIcons
-              name="arrow-back"
-              size={24}
-              color={theme.colors.textDark}
-            />
-          </Pressable>
-          <Text style={styles.headerTitle}>Bookings</Text>
-        </View>
+        <Text style={styles.headerTitle}>Bookings</Text>
         <Pressable
           style={styles.addButton}
           onPress={() => router.push("/bookings/new")}
         >
           <MaterialIcons name="add" size={24} color="white" />
+          <Text style={styles.addButtonText}>Add New</Text>
         </Pressable>
       </View>
 

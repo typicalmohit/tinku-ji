@@ -5,33 +5,75 @@ import {
   Pressable,
   ActivityIndicator,
   ViewStyle,
+  TextStyle,
+  StyleProp,
 } from "react-native";
-import { theme } from "@/constants/theme";
+import { theme } from "@/styles/theme";
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: "primary" | "secondary";
-  disabled?: boolean;
   loading?: boolean;
-  buttonStyle?: ViewStyle;
+  disabled?: boolean;
+  variant?: "primary" | "secondary" | "danger";
+  buttonStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
-const Button: React.FC<ButtonProps> = ({
+export default function Button({
   title,
   onPress,
-  variant = "primary",
-  disabled = false,
   loading = false,
+  disabled = false,
+  variant = "primary",
   buttonStyle,
-}) => {
+  textStyle,
+}: ButtonProps) {
+  const getBackgroundColor = () => {
+    if (disabled) return theme.colors.darkLight;
+    switch (variant) {
+      case "secondary":
+        return "transparent";
+      case "danger":
+        return "#EF4444";
+      default:
+        return theme.colors.primary;
+    }
+  };
+
+  const getBorderColor = () => {
+    if (disabled) return theme.colors.darkLight;
+    switch (variant) {
+      case "secondary":
+        return theme.colors.primary;
+      case "danger":
+        return "#EF4444";
+      default:
+        return theme.colors.primary;
+    }
+  };
+
+  const getTextColor = () => {
+    if (disabled) return theme.colors.textLight;
+    switch (variant) {
+      case "secondary":
+        return theme.colors.primary;
+      case "danger":
+      default:
+        return theme.colors.background;
+    }
+  };
+
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
       style={[
         styles.button,
-        variant === "primary" ? styles.primary : styles.secondary,
+        {
+          backgroundColor: getBackgroundColor(),
+          borderColor: getBorderColor(),
+        },
         disabled && styles.disabled,
         buttonStyle,
       ]}
@@ -44,7 +86,10 @@ const Button: React.FC<ButtonProps> = ({
         <Text
           style={[
             styles.buttonText,
-            variant === "secondary" && styles.secondaryText,
+            {
+              color: getTextColor(),
+            },
+            textStyle,
           ]}
         >
           {title}
@@ -52,7 +97,7 @@ const Button: React.FC<ButtonProps> = ({
       )}
     </Pressable>
   );
-};
+}
 
 const styles = StyleSheet.create({
   button: {
@@ -83,5 +128,3 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 });
-
-export default Button;

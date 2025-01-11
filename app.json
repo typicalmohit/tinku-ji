@@ -47,6 +47,14 @@
           "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
         }
       ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#ffffff",
+          "sounds": ["./assets/sounds/notification.wav"]
+        }
+      ],
       "expo-secure-store"
     ],
     "experiments": {
@@ -60,7 +68,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "config": {}
+      "config": {},
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -72,9 +83,9 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.READ_CONTACTS",
         "android.permission.WRITE_CONTACTS",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.READ_CONTACTS",
-        "android.permission.WRITE_CONTACTS"
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.POST_NOTIFICATIONS"
       ],
       "package": "com.anonymous.basicapp"
     }

@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import Toast from "@/components/Toast";
 import { dbOperations, initDatabase, saveFile, User } from "@/lib/database";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { generateUUID } from "@/helpers/common";
+import { generateUUID } from "@/utils/common";
 
 type AuthContextType = {
   session: { user: { id: string } } | null;
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession({ user: { id: userId } });
       setUserProfile(newUser);
 
-      router.replace("/(main)/home");
+      router.replace("/(main)");
     } catch (error: any) {
       console.error("Signup error:", error);
       throw error;
@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession({ user: { id: user.id } });
       setUserProfile(user);
 
-      router.replace("/(main)/home");
+      router.replace("/(main)");
     } catch (error) {
       console.error("Sign in error:", error);
       throw error;

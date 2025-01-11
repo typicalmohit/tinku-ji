@@ -1,5 +1,5 @@
 import { View, ActivityIndicator } from "react-native";
-import { theme } from "@/constants/theme";
+import { theme } from "@/styles/theme";
 
 export default function LoadingScreen() {
   return (

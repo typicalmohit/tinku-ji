@@ -19,11 +19,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/AuthContext";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Toast from "@/components/Toast";
-import { theme } from "@/constants/theme";
-import { hp, wp } from "@/helpers/common";
+import { theme } from "@/styles/theme";
+import { hp, wp } from "@/utils/common";
 import * as Contacts from "expo-contacts";
 import { dbOperations, saveFile, PhoneNumber } from "@/lib/database";
-import { generateUUID } from "@/helpers/common";
+import { generateUUID } from "@/utils/common";
 
 type PhoneType = "Primary" | "Secondary" | "Other";
 

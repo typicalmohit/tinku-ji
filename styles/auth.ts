@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
-import { theme } from "@/constants/theme";
-import { hp, wp } from "@/helpers/common";
+import { theme } from "@/styles/theme";
+import { hp, wp } from "@/utils/common";
 
 export const authStyles = StyleSheet.create({
   container: {

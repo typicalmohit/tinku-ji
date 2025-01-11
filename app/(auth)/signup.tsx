@@ -14,10 +14,10 @@ import {
   validateEmail,
   validatePassword,
   validateName,
-} from "@/helpers/validation";
+} from "@/utils/validation";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Button from "@/components/Button";
-import { theme } from "@/constants/theme";
+import { theme } from "@/styles/theme";
 import { authStyles as styles } from "@/styles/auth";
 import Toast from "@/components/Toast";
 
@@ -56,7 +56,7 @@ const Signup: React.FC = () => {
       await signUp(formData.email, formData.password, formData.fullName);
       console.log("Signup successful, navigating to home...");
 
-      router.replace("/(main)/home");
+      router.replace("/(main)/(home)");
     } catch (error: any) {
       console.error("Signup error:", error);
       setError(error.message || "An error occurred during signup");
@@ -182,7 +182,7 @@ const Signup: React.FC = () => {
         </View>
 
         <View style={styles.footer as ViewStyle}>
-          <Pressable onPress={() => router.push("/login")}>
+          <Pressable onPress={() => router.push("/(auth)/login")}>
             <Text style={styles.footerText as TextStyle}>
               Already have an account?{" "}
               <Text style={styles.footerLink as TextStyle}>Login</Text>

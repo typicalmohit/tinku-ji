@@ -17,7 +17,7 @@ export default function Index() {
 
   // If authenticated, go to home
   if (session) {
-    return <Redirect href="/(main)/home" />;
+    return <Redirect href="/(main)/(home)" />;
   }
 
   // If not authenticated, show welcome screen

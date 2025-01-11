@@ -10,8 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/AuthContext";
-import { theme } from "@/constants/theme";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { theme } from "@/styles/theme";
 import { Menu } from "react-native-paper";
 
 interface HeaderProps {
@@ -22,7 +21,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ title, showBackButton = false }) => {
   const { signOut, userProfile } = useAuth();
   const router = useRouter();
-  const { top } = useSafeAreaInsets();
   const [menuVisible, setMenuVisible] = useState(false);
 
   const menuItems = [
@@ -75,11 +73,11 @@ const Header: React.FC<HeaderProps> = ({ title, showBackButton = false }) => {
   };
 
   return (
-    <View style={[styles.header, { paddingTop: top }]}>
+    <View style={[styles.header]}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" />
       <View style={styles.leftSection}>
         <Pressable
-          onPress={() => router.push("/home")}
+          onPress={() => router.push("/(main)/(home)")}
           style={styles.iconButton}
         >
           <MaterialIcons name="home" size={28} color={theme.colors.primary} />
@@ -113,7 +111,7 @@ const Header: React.FC<HeaderProps> = ({ title, showBackButton = false }) => {
             titleStyle={{ color: theme.colors.textDark }}
             leadingIcon={() => (
               <MaterialIcons
-                name={item.icon}
+                name={item.icon as any}
                 size={24}
                 color={theme.colors.textDark}
               />

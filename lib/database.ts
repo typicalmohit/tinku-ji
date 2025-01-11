@@ -54,6 +54,18 @@ export interface Booking {
   created_at: string;
 }
 
+// Update Document interface
+export interface Document {
+  id: string;
+  user_id: string;
+  name: string;
+  file_path: string;
+  file_type: string;
+  expiry_date: string;
+  comments: string | null;
+  created_at: string;
+}
+
 // Database configuration
 const DATABASE_NAME = "tinkuji.db";
 // Database singleton instance
@@ -64,6 +76,14 @@ let db: SQLite.SQLiteDatabase | null = null;
 export const initializeDB = async (): Promise<SQLite.SQLiteDatabase> => {
   if (!db) {
     db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  }
+  return db;
+};
+
+// Get the existing database instance without initialization
+export const getDB = () => {
+  if (!db) {
+    throw new Error("Database not initialized");
   }
   return db;
 };
@@ -126,7 +146,7 @@ export const initDatabase = async (): Promise<boolean> => {
       await migrateDatabase(database, currentVersion);
     }
 
-    // Create users table
+    // Create users table first (since other tables reference it)
     await database.runAsync(`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
@@ -185,12 +205,31 @@ export const initDatabase = async (): Promise<boolean> => {
       );
     `);
 
+    // Create documents table
+    await database.runAsync(`
+      CREATE TABLE IF NOT EXISTS documents (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        file_path TEXT NOT NULL,
+        file_type TEXT NOT NULL,
+        expiry_date TEXT NOT NULL,
+        comments TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      );
+    `);
+
     // Create indexes
     await database.runAsync(`
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
       CREATE INDEX IF NOT EXISTS idx_user_phones_user_id ON user_phones(user_id);
       CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
+      CREATE INDEX IF NOT EXISTS idx_documents_user_id ON documents(user_id);
     `);
+
+    // Update database version
+    await database.runAsync(`PRAGMA user_version = ${TARGET_DB_VERSION};`);
 
     console.log("Database initialized and migrated successfully");
     return true;
@@ -279,10 +318,7 @@ export const dbOperations = {
   // User operations
   // Create a new user in the database
   createUser: async (user: User): Promise<void> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+    const database = getDB();
 
     await database.runAsync(
       "INSERT INTO users (id, email, password, name, created_at) VALUES (?, ?, ?, ?, ?)",
@@ -292,35 +328,31 @@ export const dbOperations = {
 
   // Get a user by email for authentication
   getUser: async (email: string): Promise<User | null> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+    const database = getDB();
 
-    const result = await database.getFirstAsync<User>(
+    const user = await database.getFirstAsync<User>(
       "SELECT * FROM users WHERE email = ?",
       [email]
     );
-    return result || null;
+    return user || null;
   },
 
-  // Update user profile information
-  updateUser: async (userId: string, updates: Partial<User>): Promise<void> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+  // Update user profile
+  updateUser: async (userId: string, user: Partial<User>): Promise<void> => {
+    const database = getDB();
 
-    const keys = Object.keys(updates).filter((key) =>
-      allowedUserFields.includes(key as keyof User)
-    ) as (keyof User)[];
+    const keys = Object.keys(user)
+      .filter(
+        (key) => key !== "id" && allowedUserFields.includes(key as keyof User)
+      )
+      .map((key) => key as keyof User);
 
     if (keys.length === 0) {
       throw new Error("No valid fields provided for update.");
     }
 
     const values = keys.map((key) =>
-      updates[key] === undefined ? null : updates[key]
+      user[key] === undefined ? null : user[key]
     );
 
     const setClause = keys.map((key) => `${key} = ?`).join(", ");
@@ -334,14 +366,12 @@ export const dbOperations = {
   // Phone number operations
   // Add a new phone number for a user
   addPhone: async (phone: PhoneNumber): Promise<void> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+    const database = getDB();
 
     await database.runAsync(
-      `INSERT INTO user_phones (id, user_id, country_code, phone_number, phone_type) 
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO user_phones (
+        id, user_id, country_code, phone_number, phone_type
+      ) VALUES (?, ?, ?, ?, ?)`,
       [
         phone.id,
         phone.user_id,
@@ -354,10 +384,7 @@ export const dbOperations = {
 
   // Get all phone numbers for a user
   getPhones: async (userId: string): Promise<PhoneNumber[]> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+    const database = getDB();
 
     return await database.getAllAsync<PhoneNumber>(
       "SELECT * FROM user_phones WHERE user_id = ?",
@@ -367,10 +394,7 @@ export const dbOperations = {
 
   // Delete a phone number
   deletePhone: async (phoneId: string): Promise<void> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+    const database = getDB();
 
     await database.runAsync("DELETE FROM user_phones WHERE id = ?", [phoneId]);
   },
@@ -378,10 +402,7 @@ export const dbOperations = {
   // Booking operations
   // Create a new booking
   createBooking: async (booking: Booking): Promise<void> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+    const database = getDB();
 
     await database.runAsync(
       `INSERT INTO bookings (
@@ -421,10 +442,7 @@ export const dbOperations = {
 
   // Get all bookings for a user
   getBookings: async (userId: string): Promise<Booking[]> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+    const database = getDB();
 
     return await database.getAllAsync<Booking>(
       "SELECT * FROM bookings WHERE user_id = ? ORDER BY created_at DESC",
@@ -437,10 +455,7 @@ export const dbOperations = {
     bookingId: string,
     booking: Partial<Booking>
   ): Promise<void> => {
-    const database = await initializeDB();
-    if (!database) {
-      throw new Error("Database not initialized");
-    }
+    const database = getDB();
 
     const keys = Object.keys(booking)
       .filter(
@@ -463,5 +478,116 @@ export const dbOperations = {
       ...values,
       bookingId,
     ]);
+  },
+
+  // Delete a booking
+  deleteBooking: async (id: string): Promise<void> => {
+    const database = getDB();
+    try {
+      await database.runAsync("DELETE FROM bookings WHERE id = ?", [id]);
+      console.log("Booking deleted successfully:", id);
+    } catch (error: any) {
+      console.error("Error deleting booking:", error);
+      throw new Error(error?.message || "Failed to delete booking");
+    }
+  },
+
+  // Document operations
+  createDocument: async (document: Document): Promise<void> => {
+    const database = getDB();
+    try {
+      await database.runAsync(
+        `INSERT INTO documents (
+          id, user_id, name, file_path, file_type, expiry_date, comments, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          document.id,
+          document.user_id,
+          document.name,
+          document.file_path,
+          document.file_type,
+          document.expiry_date,
+          document.comments || null,
+          document.created_at,
+        ]
+      );
+      console.log("Document created successfully:", document.id);
+    } catch (error: any) {
+      console.error("Error creating document:", error);
+      throw new Error(error?.message || "Failed to create document");
+    }
+  },
+
+  updateDocument: async (
+    documentId: string,
+    document: Document
+  ): Promise<void> => {
+    const database = getDB();
+    try {
+      await database.runAsync(
+        `UPDATE documents SET
+          name = ?,
+          file_path = ?,
+          file_type = ?,
+          expiry_date = ?,
+          comments = ?
+        WHERE id = ?`,
+        [
+          document.name,
+          document.file_path,
+          document.file_type,
+          document.expiry_date,
+          document.comments || null,
+          documentId,
+        ]
+      );
+      console.log("Document updated successfully:", documentId);
+    } catch (error: any) {
+      console.error("Error updating document:", error);
+      throw new Error(error?.message || "Failed to update document");
+    }
+  },
+
+  getDocuments: async (userId: string): Promise<Document[]> => {
+    const database = getDB();
+    try {
+      const documents = await database.getAllAsync<Document>(
+        "SELECT * FROM documents WHERE user_id = ? ORDER BY created_at DESC",
+        [userId]
+      );
+      return documents;
+    } catch (error: any) {
+      console.error("Error fetching documents:", error);
+      throw new Error(error?.message || "Failed to fetch documents");
+    }
+  },
+
+  deleteDocument: async (id: string): Promise<void> => {
+    try {
+      const database = getDB();
+
+      // First get the document to get its file path
+      const doc = await database.getFirstAsync<{ file_path: string }>(
+        "SELECT file_path FROM documents WHERE id = ?",
+        [id]
+      );
+
+      if (doc) {
+        // Delete the file from storage
+        try {
+          await FileSystem.deleteAsync(doc.file_path);
+        } catch (error) {
+          console.error("Error deleting file:", error);
+        }
+      }
+
+      // Delete the document from database
+      await database.runAsync("DELETE FROM documents WHERE id = ?", [id]);
+
+      console.log("Document deleted successfully:", id);
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      throw error;
+    }
   },
 };

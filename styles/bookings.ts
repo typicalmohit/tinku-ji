@@ -1,8 +1,9 @@
 import { StyleSheet } from "react-native";
-import { theme } from "@/constants/theme";
+import { theme } from "@/styles/theme";
 
 export const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#d9cec1",
     flex: 1,
     padding: 16,
   },
@@ -11,9 +12,9 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16,
-    paddingRight: 30,
+    paddingRight: 16,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.darkLight,
+    borderBottomColor: "#E5E5E5",
     backgroundColor: "white",
   },
   headerLeft: {
@@ -38,13 +39,18 @@ export const styles = StyleSheet.create({
     marginLeft: -8,
   },
   addButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: theme.colors.primary,
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center",
-    marginLeft: 12,
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  addButtonText: {
+    color: "white",
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "500",
   },
   backButton: {
     marginRight: 16,
@@ -56,7 +62,8 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: theme.colors.textDark,
-    marginTop: 2,
+    flex: 1,
+    marginLeft: 8,
   },
   input: {
     flex: 1,
@@ -64,9 +71,8 @@ export const styles = StyleSheet.create({
     borderColor: theme.colors.darkLight,
     borderRadius: 20,
     padding: 12,
-    fontSize: 16,
+    fontSize: 14,
     minHeight: 45,
-    width: "70%",
   },
   saveButton: {
     flex: 1,
@@ -101,7 +107,7 @@ export const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
     gap: 12,
     width: "100%",
   },
@@ -110,19 +116,17 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     width: "30%",
-    flexShrink: 0,
   },
   inputLabel: {
     fontSize: 14,
     color: theme.colors.textLight,
-    flexShrink: 1,
-    marginTop: 2,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     marginBottom: 16,
+    justifyContent: "space-between",
   },
   statusLabel: {
     fontSize: 14,
@@ -131,41 +135,49 @@ export const styles = StyleSheet.create({
   },
   dateTimeContainer: {
     marginBottom: 16,
-    width: "100%",
   },
   dateTimeLabelContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
     marginBottom: 8,
+  },
+  dateLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "600",
+    color: theme.colors.textDark,
   },
   dateTimeInputs: {
     flexDirection: "row",
-    gap: 12,
     width: "100%",
   },
   dateTimeButton: {
+    backgroundColor: theme.colors.background,
+    padding: 12,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: theme.colors.darkLight,
-    borderRadius: 20,
-    padding: 12,
-    minHeight: 45,
-    alignItems: "center",
-    justifyContent: "center",
   },
   dateTimeText: {
     fontSize: 16,
     color: theme.colors.textDark,
+    textAlign: "center",
   },
   buttonContainer: {
     flexDirection: "row",
     gap: 12,
     paddingHorizontal: 2,
-    marginBottom: 30,
+    marginBottom: 20,
+    marginHorizontal: 16,
   },
   cancelButton: {
     flex: 1,
     backgroundColor: "white",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   bookingCard: {
     backgroundColor: "white",
@@ -232,10 +244,13 @@ export const styles = StyleSheet.create({
   nameText: {
     fontSize: 14,
     color: theme.colors.textDark,
+    flex: 1,
   },
   phoneText: {
     fontSize: 14,
+    marginRight: 16,
     color: theme.colors.textLight,
+    textAlign: "right",
   },
   paymentInfo: {
     flexDirection: "row",
@@ -255,7 +270,7 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colors.status.pending,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: theme.radius.sm,
+    borderRadius: 20,
   },
   driverInfo: {
     flexDirection: "row",
@@ -272,7 +287,7 @@ export const styles = StyleSheet.create({
     color: theme.colors.textDark,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: theme.radius.sm,
+    borderRadius: 20,
   },
   filtersCard: {
     flexDirection: "row",
@@ -405,18 +420,17 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: theme.colors.textLight,
     lineHeight: 18,
-    marginTop: 2,
   },
   detailValue: {
-    flex: 1,
     fontSize: 14,
     color: theme.colors.textDark,
-    marginLeft: 50,
+    fontWeight: "600",
+    marginLeft: 24,
   },
   divider: {
     height: 1,
     backgroundColor: theme.colors.darkLight,
-    marginVertical: 4,
+    marginBottom: 10,
   },
   statusChip: {
     flexDirection: "row",
@@ -426,5 +440,43 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: "flex-start",
     marginTop: 8,
+  },
+  headerButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F5",
+  },
+  inputWithButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    maxWidth: "70%",
+  },
+  contactPickerButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: theme.colors.background,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  expandButton: {
+    padding: 4,
+  },
+  expandedContent: {
+    marginTop: 8,
+  },
+  deleteButton: {
+    flex: 1,
+    backgroundColor: "#EF4444",
   },
 });
